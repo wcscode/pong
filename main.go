@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image"
 	_ "image/png"
 	"log"
 
@@ -16,11 +15,13 @@ import (
 type Game struct {
 	keys []ebiten.Key
 }
+type BoxCollision struct {
+}
 
 var img *ebiten.Image
-var paddle1 Paddle
-var paddle2 Paddle
-var ball Ball
+var paddle1 GameObject
+var paddle2 GameObject
+var ball GameObject
 
 var dirX float64 = 1
 var dirY float64 = 1
@@ -32,19 +33,25 @@ func init() {
 		log.Fatal(err)
 	}
 
-	paddle1.name = "Player 1"
-	paddle1.positionX = 0
-	paddle1.positionY = 45
-	paddle1.image = img.SubImage(image.Rect(0, 0, 50, 140)).(*ebiten.Image)
+	paddle1.Sprite.Name = "Player 1"
+	paddle1.Sprite.PositionX = 0
+	paddle1.Sprite.PositionY = 45
+	paddle1.Sprite.ImageWidth = 50
+	paddle1.Sprite.ImageHeight = 145
+	paddle1.Sprite.LoadAndCutImage(img, 0, 0)
 
-	paddle2.name = "Player 2"
-	paddle2.positionX = 270
-	paddle2.positionY = 45
-	paddle2.image = img.SubImage(image.Rect(100, 0, 50, 140)).(*ebiten.Image)
+	paddle2.Sprite.Name = "Player 2"
+	paddle2.Sprite.PositionX = 270
+	paddle2.Sprite.PositionY = 45
+	paddle2.Sprite.ImageWidth = 50
+	paddle2.Sprite.ImageHeight = 145
+	paddle2.Sprite.LoadAndCutImage(img, 50, 0)
 
-	ball.positionX = 320 * .5
-	ball.positionY = 240 * .5
-	ball.image = img.SubImage(image.Rect(100, 0, 150, 50)).(*ebiten.Image)
+	ball.Sprite.PositionX = 320 * .5
+	ball.Sprite.PositionY = 240 * .5
+	ball.Sprite.ImageWidth = 50
+	ball.Sprite.ImageHeight = 50
+	ball.Sprite.LoadAndCutImage(img, 100, 0)
 }
 
 // Update proceeds the game state.
@@ -53,39 +60,39 @@ func (g *Game) Update() error {
 	// Write your game's logical update.
 	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
 
-	ball.positionX += dirX
-	ball.positionY += dirY
+	ball.PositionX += dirX
+	ball.PositionY += dirY
 
-	if ball.positionX >= 320 {
+	if ball.PositionX >= 320 {
 		dirX = -1
 	}
-	if ball.positionX <= 0 {
+	if ball.PositionX <= 0 {
 		dirX = 1
 	}
 
-	if ball.positionY >= 240 {
+	if ball.PositionY >= 240 {
 		dirY = -1
 	}
-	if ball.positionY <= 0 {
+	if ball.PositionY <= 0 {
 		dirY = 1
 	}
 
 	for _, key := range g.keys {
 
 		if key == ebiten.KeyS {
-			paddle1.positionY += 1
+			paddle1.PositionY += 1
 		}
 
 		if key == ebiten.KeyW {
-			paddle1.positionY += -1
+			paddle1.PositionY += -1
 		}
 
 		if key == ebiten.KeyArrowDown {
-			paddle2.positionY += 1
+			paddle2.PositionY += 1
 		}
 
 		if key == ebiten.KeyArrowUp {
-			paddle2.positionY += -1
+			paddle2.PositionY += -1
 		}
 	}
 
@@ -99,17 +106,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	//screen.Fill(color.RGBA{200, 0, 0, 0xff})
 	// Write your game's rendering.
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(paddle1.positionX, paddle1.positionY)
+	op.GeoM.Translate(paddle1.PositionX, paddle1.PositionY)
 
 	op2 := &ebiten.DrawImageOptions{}
-	op2.GeoM.Translate(paddle2.positionX, paddle2.positionY) //op.GeoM.Scale(1.5, 1)
+	op2.GeoM.Translate(paddle2.PositionX, paddle2.PositionY) //op.GeoM.Scale(1.5, 1)
 
 	op3 := &ebiten.DrawImageOptions{}
-	op3.GeoM.Translate(ball.positionX, ball.positionY) //op.GeoM.Scale(1.5, 1)
+	op3.GeoM.Translate(ball.PositionX, ball.PositionY) //op.GeoM.Scale(1.5, 1)
 
-	screen.DrawImage(paddle1.image, op)
-	screen.DrawImage(paddle2.image, op2)
-	screen.DrawImage(ball.image, op3)
+	//fmt.Println(op, op2, op3)
+	screen.DrawImage(paddle1.Image, op)
+	screen.DrawImage(paddle2.Image, op2)
+	screen.DrawImage(ball.Image, op3)
 
 }
 
