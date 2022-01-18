@@ -2,26 +2,32 @@ package main
 
 import (
 	"image/color"
+	_ "image/png"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/wcscode/pong/engine"
 )
 
-var gamesObjects []*GameObject
+type PlayScene engine.Scene
 
 var img *ebiten.Image
-
-var dirX float64 = 1
-var dirY float64 = 1
 
 //var scene  engine.Scene
 var paddle1 engine.GameObject
 var paddle2 engine.GameObject
 var ball engine.GameObject
 
-func (s *engine.Scene) Init() {
+func (s *PlayScene) Init(gamesObjects []*engine.GameObject) {
 
+	var err error
+	img, _, err = ebitenutil.NewImageFromFile("images/sprites.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	
 	paddle1.Sprite.Name = "Player 1"
 	paddle1.PositionX = 0
 	paddle1.PositionY = 45
@@ -42,6 +48,8 @@ func (s *engine.Scene) Init() {
 
 	ball.PositionX = 320 * .5
 	ball.PositionY = 240 * .5
+	ball.VelocityX = 1
+	ball.VelocityY = 1
 	ball.Sprite.ImageWidth = 50
 	ball.Sprite.ImageHeight = 50
 	ball.Sprite.LoadAndCutImage(img, 100, 0)
@@ -49,24 +57,24 @@ func (s *engine.Scene) Init() {
 	gamesObjects = append(gamesObjects, &ball)
 }
 
-func () Update() error {
+func (s *PlayScene) Update(g *Game) error {
 	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
 
-	ball.PositionX += dirX
-	ball.PositionY += dirY
+	ball.PositionX += ball.VelocityX
+	ball.PositionY += ball.VelocityY
 
 	if ball.PositionX >= 320 {
-		dirX = -1
+	 	ball.InvertVelocity(true, false)
 	}
 	if ball.PositionX <= 0 {
-		dirX = 1
+		ball.InvertVelocity(true, false)
 	}
 
 	if ball.PositionY >= 240 {
-		dirY = -1
+		ball.InvertVelocity(false, true)
 	}
 	if ball.PositionY <= 0 {
-		dirY = 1
+		ball.InvertVelocity(false, true)
 	}
 
 	for _, key := range g.keys {
@@ -89,7 +97,11 @@ func () Update() error {
 	}
 	return nil
 }
-func (engine.Scene) Draw(screen *ebiten.Image) {
+func (s *PlayScene) Draw(screen *ebiten.Image) {
 
-	screen.Fill(color.RGBA{200, 0, 0, 0xff})
+	screen.Fill(color.RGBA{0, 0, 0, 0xff})
+
+	//for _, gameObject := range gamesObjects {
+//		gameObject.Draw(screen)
+//	}
 }

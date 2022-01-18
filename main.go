@@ -7,8 +7,14 @@ import (
 	//"github.com/hajimehoshi/ebiten/ebitenutil"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/wcscode/pong/engine"
 )
+
+//var scenes []engine.Scene
+var scenes []engine.DrawerUpdater
+//var scenes []engine.Scene
+var menuScene MenuScene
+var gamesObjects []engine.GameObject
 
 // Game implements ebiten.Game interface.
 type Game struct {
@@ -16,12 +22,14 @@ type Game struct {
 }
 
 func init() {
-	var err error
-	img, _, err = ebitenutil.NewImageFromFile("images/sprites.png")
-	if err != nil {
-		log.Fatal(err)
-	}
 
+	 menuScene := MenuScene{Name: "Menu", Active: true}	 
+	// playScene := PlayScene{Name: "Play", Active: false}	 
+	 
+	scenes = []engine.DrawerUpdater{}
+	 //scenes = append(scenes, engine.Scene(menuScene), engine.Scene(playScene))
+	 scenes = append(scenes, *menuScene)
+	 
 }
 
 // Update proceeds the game state.
@@ -35,8 +43,11 @@ func (g *Game) Update() error {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
-	for _, gameObject := range gamesObjects {
-		gameObject.Draw(screen)
+	
+	for _, scene := range scenes {		
+		/*&if(scene.Active) {
+            
+		}*/
 	}
 }
 
