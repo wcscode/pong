@@ -1,4 +1,4 @@
-package main
+package engine
 
 import (
 	"image"
@@ -6,10 +6,20 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+type Scene struct {
+	Name   string
+	Active bool
+}
+
+type GameObject struct {
+	PositionX    float64
+	PositionY    float64
+	Sprite       Sprite
+	BoxCollision BoxCollision
+}
+
 type Sprite struct {
 	Name        string
-	PositionX   float64
-	PositionY   float64
 	ImageWidth  int
 	ImageHeight int
 	Image       *ebiten.Image
@@ -22,13 +32,20 @@ type BoxCollision struct {
 	y1 float64
 }
 
-type GameObject struct {
-	Sprite       Sprite
-	BoxCollision BoxCollision
+type Drawer interface {
+	//	Draw(screen *ebiten.Image)
 }
 
-type GamesObjects struct {
-	Sprites []*Sprite
+type Updater interface {
+	Update()
+}
+
+func (gOb *GameObject) Draw(screen *ebiten.Image) {
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(gOb.PositionX, gOb.PositionY)
+
+	screen.DrawImage(gOb.Sprite.Image, op)
 }
 
 func (s *Sprite) LoadAndCutImage(img *ebiten.Image, initialX int, initialY int) {
