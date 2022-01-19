@@ -1,9 +1,10 @@
 package main
 
 import (
-	"image/color"
+	"fmt"
 	_ "image/png"
 	"log"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -12,6 +13,7 @@ import (
 )
 
 type PlayScene engine.Scene
+// Game implements ebiten.Game interface.
 
 var img *ebiten.Image
 
@@ -20,7 +22,26 @@ var paddle1 engine.GameObject
 var paddle2 engine.GameObject
 var ball engine.GameObject
 
-func (s *PlayScene) Init(gamesObjects []*engine.GameObject) {
+
+func (s *PlayScene) GetName() string {
+	
+	return s.Name
+}
+
+
+func (ps *PlayScene) GetActive() bool {
+	
+	return ps.Active
+}
+
+func (ps *PlayScene) SetActive(active bool) {
+	
+	ps.Active = active
+}
+
+//var gamesObjects []engine.GameObject
+func (ps *PlayScene) Init() {
+	
 
 	var err error
 	img, _, err = ebitenutil.NewImageFromFile("images/sprites.png")
@@ -35,7 +56,7 @@ func (s *PlayScene) Init(gamesObjects []*engine.GameObject) {
 	paddle1.Sprite.ImageHeight = 145
 	paddle1.Sprite.LoadAndCutImage(img, 0, 0)
 
-	gamesObjects = append(gamesObjects, &paddle1)
+	ps.GamesObjects = append(ps.GamesObjects, &paddle1)
 
 	paddle2.Sprite.Name = "Player 2"
 	paddle2.PositionX = 270
@@ -44,7 +65,7 @@ func (s *PlayScene) Init(gamesObjects []*engine.GameObject) {
 	paddle2.Sprite.ImageHeight = 145
 	paddle2.Sprite.LoadAndCutImage(img, 50, 0)
 
-	gamesObjects = append(gamesObjects, &paddle2)
+	ps.GamesObjects = append(ps.GamesObjects, &paddle2)
 
 	ball.PositionX = 320 * .5
 	ball.PositionY = 240 * .5
@@ -54,54 +75,58 @@ func (s *PlayScene) Init(gamesObjects []*engine.GameObject) {
 	ball.Sprite.ImageHeight = 50
 	ball.Sprite.LoadAndCutImage(img, 100, 0)
 
-	gamesObjects = append(gamesObjects, &ball)
+	ps.GamesObjects = append(ps.GamesObjects, &ball)
 }
 
-func (s *PlayScene) Update(g *Game) error {
-	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
+func (ps *PlayScene) Update(keys []ebiten.Key) error {
+   	
+	keys = inpututil.AppendPressedKeys(keys[:0])
+	
 
 	ball.PositionX += ball.VelocityX
 	ball.PositionY += ball.VelocityY
 
-	if ball.PositionX >= 320 {
+	if ball.PositionX >= engine.ScreenWidth {
 	 	ball.InvertVelocity(true, false)
 	}
 	if ball.PositionX <= 0 {
 		ball.InvertVelocity(true, false)
 	}
 
-	if ball.PositionY >= 240 {
+	if ball.PositionY >= engine.ScreenHeight {
 		ball.InvertVelocity(false, true)
 	}
 	if ball.PositionY <= 0 {
 		ball.InvertVelocity(false, true)
 	}
 
-	for _, key := range g.keys {
-
+	for _, key := range keys {
 		if key == ebiten.KeyS {
-			paddle1.PositionY += 1
+			paddle1.PositionY = math.Min(engine.ScreenWidth,  math.Min(engine.ScreenWidth, paddle1.PositionY + 4))
 		}
 
 		if key == ebiten.KeyW {
-			paddle1.PositionY += -1
+			paddle1.PositionY += -4
 		}
 
 		if key == ebiten.KeyArrowDown {
-			paddle2.PositionY += 1
+			fmt.Println(paddle2.PositionY)
+			if(paddle2.PositionY <= engine.ScreenHeight - float64(paddle2.Sprite.ImageHeight)) {
+				paddle2.PositionY +=  4
+			}
 		}
 
 		if key == ebiten.KeyArrowUp {
-			paddle2.PositionY += -1
+			paddle2.PositionY += -4
 		}
 	}
+
 	return nil
 }
-func (s *PlayScene) Draw(screen *ebiten.Image) {
+func (ps *PlayScene) Draw(screen *ebiten.Image) {  
 
-	screen.Fill(color.RGBA{0, 0, 0, 0xff})
-
-	//for _, gameObject := range gamesObjects {
-//		gameObject.Draw(screen)
-//	}
+	//screen.Fill(color.RGBA{0, 0, 0, 0xff}) 
+	for _, gameObject := range ps.GamesObjects {
+		gameObject.Draw(screen)
+	}
 }

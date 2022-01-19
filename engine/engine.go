@@ -6,9 +6,22 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const ScreenWidth float64 = 640
+const ScreenHeight float64 = 480
+
+type Scener interface {
+	GetName() string
+	GetActive() bool
+	SetActive(active bool) 
+	Draw(screen *ebiten.Image)
+	Update(e []ebiten.Key) error 
+	//Update(g *ebiten.Game) error
+}
+
 type Scene struct {
 	Name   string
 	Active bool	
+    GamesObjects []*GameObject
 }
 
 type GameObject struct {
@@ -34,23 +47,33 @@ type BoxCollision struct {
 	y1 float64
 }
 
-type DrawerUpdater interface {
-	//Draw(screen *ebiten.Image)
-	Update()
+
+//Define list of scenes
+
+var ScenesBehaviors []Scener
+
+
+func SetActiveScene(name string) {
+
+	for _, scene := range ScenesBehaviors {
+
+		if(scene.GetName() == name) {
+
+			scene.SetActive(true)
+		}else {
+			scene.SetActive(false)
+		}
+	}
 }
 
-/*func (gOb *GameObject) Draw(screen *ebiten.Image) {
+func (gOb *GameObject) Draw(screen *ebiten.Image) {
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(gOb.PositionX, gOb.PositionY)
 
 	screen.DrawImage(gOb.Sprite.Image, op)
-}*/
+}
 
-/*func (s *Scene) Draw(screen *ebiten.Image) {
-
-	screen.Fill(color.RGBA{200, 0, 0, 0xff})
-}*/
 
 
 
