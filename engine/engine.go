@@ -41,10 +41,10 @@ type Sprite struct {
 }
 
 type BoxCollision struct {
-	x0 float64
-	y0 float64
-	x1 float64
-	y1 float64
+	X0 float64
+	Y0 float64
+	X1 float64
+	Y1 float64
 }
 
 //Define list of scenes
@@ -94,7 +94,29 @@ func (gOb *GameObject) InvertVelocity(x bool, y bool) {
 	}
 }
 
-func IsCollinding(gameObject1 GameObject, gameObject2 GameObject) bool {
+func IsColliding(gameObject1 *GameObject, gameObject2 *GameObject) bool {
+
+	obj1X0 := gameObject1.BoxCollision.X0 + gameObject1.PositionX
+	obj1X1 := gameObject1.BoxCollision.X1 + gameObject1.PositionX
+
+	obj2X0 := gameObject2.BoxCollision.X0 + gameObject2.PositionX
+	obj2X1 := gameObject2.BoxCollision.X1 + gameObject2.PositionX
+
+	if obj1X0 >= obj2X0 && obj1X0 <= obj2X1 ||
+		obj1X1 >= obj2X0 && obj1X1 <= obj2X1 {
+
+		obj1Y0 := gameObject1.BoxCollision.Y0 + gameObject1.PositionY
+		obj1Y1 := gameObject1.BoxCollision.Y1 + gameObject1.PositionY
+
+		obj2Y0 := gameObject2.BoxCollision.Y0 + gameObject2.PositionY
+		obj2Y1 := gameObject2.BoxCollision.Y1 + gameObject2.PositionY
+
+		if obj1Y0 >= obj2Y0 && obj1Y0 <= obj2Y1 ||
+			obj1Y1 >= obj2Y0 && obj1Y1 <= obj2Y1 {
+
+			return true
+		}
+	}
 
 	return false
 }

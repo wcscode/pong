@@ -50,6 +50,10 @@ func (ps *PlayScene) Init() {
 	paddle1.PositionY = 45
 	paddle1.Sprite.ImageWidth = 50
 	paddle1.Sprite.ImageHeight = 145
+	paddle1.BoxCollision.X0 = 0
+	paddle1.BoxCollision.Y0 = 0
+	paddle1.BoxCollision.X1 = 10
+	paddle1.BoxCollision.Y1 = 115
 	paddle1.Sprite.LoadAndCutImage(img, 0, 0)
 
 	ps.GamesObjects = append(ps.GamesObjects, &paddle1)
@@ -59,6 +63,10 @@ func (ps *PlayScene) Init() {
 	paddle2.PositionY = 45
 	paddle2.Sprite.ImageWidth = 50
 	paddle2.Sprite.ImageHeight = 145
+	paddle2.BoxCollision.X0 = 0
+	paddle2.BoxCollision.Y0 = 0
+	paddle2.BoxCollision.X1 = 10
+	paddle2.BoxCollision.Y1 = 115
 	paddle2.Sprite.LoadAndCutImage(img, 50, 0)
 
 	ps.GamesObjects = append(ps.GamesObjects, &paddle2)
@@ -69,6 +77,10 @@ func (ps *PlayScene) Init() {
 	ball.VelocityY = 1
 	ball.Sprite.ImageWidth = 50
 	ball.Sprite.ImageHeight = 50
+	ball.BoxCollision.X0 = 0
+	ball.BoxCollision.Y0 = 0
+	ball.BoxCollision.X1 = 13
+	ball.BoxCollision.Y1 = 13
 	ball.Sprite.LoadAndCutImage(img, 100, 0)
 
 	ps.GamesObjects = append(ps.GamesObjects, &ball)
@@ -76,51 +88,61 @@ func (ps *PlayScene) Init() {
 
 func (ps *PlayScene) Update(keys []ebiten.Key) error {
 
+	//if ball.PositionX >= 0 {
+	if engine.IsColliding(&ball, &paddle2) {
+		ball.InvertVelocity(true, false)
+	}
+	//} else {
+	if engine.IsColliding(&ball, &paddle1) {
+		ball.InvertVelocity(true, false)
+	}
+	//}
+
 	keys = inpututil.AppendPressedKeys(keys[:0])
 
 	ball.PositionX += ball.VelocityX
 	ball.PositionY += ball.VelocityY
 
-	if ball.PositionX > 270 {
+	if ball.PositionX > 285 {
 		ball.InvertVelocity(true, false)
 	}
 
-	if ball.PositionX < 0 {
+	if ball.PositionX < -15 {
 		ball.InvertVelocity(true, false)
 	}
 
-	if ball.PositionY > 190 {
+	if ball.PositionY > 205 {
 		ball.InvertVelocity(false, true)
 	}
 
-	if ball.PositionY < 0 {
+	if ball.PositionY < -15 {
 		ball.InvertVelocity(false, true)
 	}
 
 	for _, key := range keys {
 
 		if key == ebiten.KeyS {
-			if paddle1.PositionY < 100 {
+			if paddle1.PositionY < 109 {
 				paddle1.PositionY += 4
 			}
 		}
 
 		if key == ebiten.KeyW {
-			if paddle1.PositionY > -10 {
+			if paddle1.PositionY > -20 {
 				paddle1.PositionY += -4
 			}
 		}
 
 		if key == ebiten.KeyArrowDown {
 
-			if paddle2.PositionY < 100 {
+			if paddle2.PositionY < 109 {
 				paddle2.PositionY += 4
 			}
 		}
 
 		if key == ebiten.KeyArrowUp {
 
-			if paddle2.PositionY > -10 {
+			if paddle2.PositionY > -20 {
 				paddle2.PositionY += -4
 			}
 		}
