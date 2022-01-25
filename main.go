@@ -9,36 +9,41 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/wcscode/pong/engine"
 )
-var menuScene MenuScene// = MenuScene{}
+
+//var menuScene MenuScene // = MenuScene{}
 // Game implements ebiten.Game interface.
 type Game struct {
 	keys []ebiten.Key
 }
 
+//var rect = image.Rectangle{}
 
 func init() {
 
-	 menuScene := MenuScene{Name: "Menu", Active: true, GamesObjects: []*engine.GameObject{}}	 
-	 playScene := PlayScene{Name: "Play", GamesObjects: []*engine.GameObject{}}	    
-	 
-	 menuScene.Init()
-	 playScene.Init()
-	 
-	 engine.SetActiveScene("PLay")
+	menuScene := MenuScene{Name: "Menu", Active: true, GamesObjects: []*engine.GameObject{}}
+	playScene := PlayScene{Name: "Play", GamesObjects: []*engine.GameObject{}}
 
-	 
-	 
-	engine.ScenesBehaviors = append(engine.ScenesBehaviors, &menuScene, &playScene)	
+	menuScene.Init()
+	playScene.Init()
+
+	engine.SetActiveScene("PLay")
+
+	engine.ScenesBehaviors = append(engine.ScenesBehaviors, &menuScene, &playScene)
+
+	//x = image.NewRGBA(image.Rectangle{image.Point{0, 0}, image.Point{50, 50}})
+	//rect := image.Rect(255, 255, 255, 255) //  geometry of 2nd rectangle which we draw atop above rectangle
+	//myred := color.RGBA{200, 0, 0, 255}
+
 }
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
 	// Write your game's logical update.
-	
-    for _, scene := range engine.ScenesBehaviors {		
-		if(scene.GetActive()) {
-            scene.Update(g.keys)
+
+	for _, scene := range engine.ScenesBehaviors {
+		if scene.GetActive() {
+			scene.Update(g.keys)
 		}
 	}
 
@@ -47,11 +52,14 @@ func (g *Game) Update() error {
 
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
-func (g *Game) Draw(screen *ebiten.Image) {	
-	
-	for _, scene := range engine.ScenesBehaviors {		
-		if(scene.GetActive()) {			
-            scene.Draw(screen)
+func (g *Game) Draw(screen *ebiten.Image) {
+
+	// create a red rectangle atop the green surface
+	//draw.Draw(screen, red_rect.Bounds(), &image.Uniform{myred}, image.ZP, draw.Src)
+
+	for _, scene := range engine.ScenesBehaviors {
+		if scene.GetActive() {
+			scene.Draw(screen)
 		}
 	}
 }

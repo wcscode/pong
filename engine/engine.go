@@ -12,16 +12,16 @@ const ScreenHeight float64 = 480
 type Scener interface {
 	GetName() string
 	GetActive() bool
-	SetActive(active bool) 
+	SetActive(active bool)
 	Draw(screen *ebiten.Image)
-	Update(e []ebiten.Key) error 
+	Update(e []ebiten.Key) error
 	//Update(g *ebiten.Game) error
 }
 
 type Scene struct {
-	Name   string
-	Active bool	
-    GamesObjects []*GameObject
+	Name         string
+	Active       bool
+	GamesObjects []*GameObject
 }
 
 type GameObject struct {
@@ -47,20 +47,18 @@ type BoxCollision struct {
 	y1 float64
 }
 
-
 //Define list of scenes
 
 var ScenesBehaviors []Scener
-
 
 func SetActiveScene(name string) {
 
 	for _, scene := range ScenesBehaviors {
 
-		if(scene.GetName() == name) {
+		if scene.GetName() == name {
 
 			scene.SetActive(true)
-		}else {
+		} else {
 			scene.SetActive(false)
 		}
 	}
@@ -74,32 +72,32 @@ func (gOb *GameObject) Draw(screen *ebiten.Image) {
 	screen.DrawImage(gOb.Sprite.Image, op)
 }
 
-
-
-
 func (s *Sprite) LoadAndCutImage(img *ebiten.Image, initialX int, initialY int) {
 
 	s.Image = img.SubImage(image.Rect(initialX, initialY, initialX+s.ImageWidth, initialY+s.ImageHeight)).(*ebiten.Image)
 }
 
-
 func (gOb *GameObject) AddVelocity(x float64, y float64) {
 
-	 gOb.VelocityX += x
-	 gOb.VelocityY += y
+	gOb.VelocityX += x
+	gOb.VelocityY += y
 }
 
 func (gOb *GameObject) InvertVelocity(x bool, y bool) {
-	
-	if(x) {
+
+	if x {
 		gOb.VelocityX *= -1
 	}
 
-	if(y) {
+	if y {
 		gOb.VelocityY *= -1
 	}
 }
 
+func IsCollinding(gameObject1 GameObject, gameObject2 GameObject) bool {
+
+	return false
+}
 
 /*func (bc *BoxCollision) SetBorders(offset int) {
 	//bc.x0 =
