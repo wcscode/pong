@@ -26,7 +26,7 @@ func init() {
 	menuScene.Init()
 	playScene.Init()
 
-	engine.SetActiveScene("PLay")
+	engine.SetActiveScene("Play")
 
 	engine.ScenesBehaviors = append(engine.ScenesBehaviors, &menuScene, &playScene)
 
@@ -75,7 +75,7 @@ func main() {
 
 	// Specify the window size as you like. Here, a doubled size is specified.
 	ebiten.SetWindowSize(int(engine.ScreenWidth), int(engine.ScreenHeight))
-	ebiten.SetWindowTitle("Your game's title")
+	ebiten.SetWindowTitle("My Pong version!!!")
 	// Call ebiten.RunGame to start your game loop.
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)

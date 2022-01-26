@@ -1,16 +1,27 @@
 package main
 
 import (
+	"fmt"
+	"image/color"
 	_ "image/png"
 	"log"
+	"math"
+	"math/rand"
 
+	"github.com/hajimehoshi/ebiten/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/wcscode/pong/engine"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
 )
 
 type PlayScene engine.Scene
+type Score struct {
+	Player1, Player2 int
+}
 
 // Game implements ebiten.Game interface.
 
@@ -20,6 +31,21 @@ var img *ebiten.Image
 var paddle1 engine.GameObject
 var paddle2 engine.GameObject
 var ball engine.GameObject
+var faceScore font.Face
+var score Score
+
+//var count int
+
+func ResetBall(ball *engine.GameObject) {
+
+	ball.PositionX = 320 * .5
+	ball.PositionY = 240 * .5
+
+	ballDir := [2]float64{-1, 1}
+	ball.VelocityX = math.Min((math.Abs(ball.VelocityX)+.2)*ballDir[rand.Int31n(2)], 20)
+	ball.VelocityY = math.Min((math.Abs(ball.VelocityY)+.2)*ballDir[rand.Int31n(2)], 20)
+	//fmt.Print(ballDir[rand.Int31n(0)])
+}
 
 func (s *PlayScene) GetName() string {
 
@@ -43,6 +69,21 @@ func (ps *PlayScene) Init() {
 	img, _, err = ebitenutil.NewImageFromFile("images/sprites.png")
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatalf("Parse error: %v", err)
+	}
+
+	const dpi = 72
+	faceScore, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    24,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatalf("New face error: %v", err)
 	}
 
 	paddle1.Sprite.Name = "Player 1"
@@ -71,10 +112,13 @@ func (ps *PlayScene) Init() {
 
 	ps.GamesObjects = append(ps.GamesObjects, &paddle2)
 
+	ballDir := [2]float64{-1, 1}
+
 	ball.PositionX = 320 * .5
 	ball.PositionY = 240 * .5
-	ball.VelocityX = 1
-	ball.VelocityY = 1
+	ball.VelocityX = 3 * ballDir[rand.Int31n(1)]
+	ball.VelocityY = 3 * ballDir[rand.Int31n(1)]
+
 	ball.Sprite.ImageWidth = 50
 	ball.Sprite.ImageHeight = 50
 	ball.BoxCollision.X0 = 0
@@ -84,6 +128,8 @@ func (ps *PlayScene) Init() {
 	ball.Sprite.LoadAndCutImage(img, 100, 0)
 
 	ps.GamesObjects = append(ps.GamesObjects, &ball)
+
+	score = Score{Player1: 0, Player2: 0}
 }
 
 func (ps *PlayScene) Update(keys []ebiten.Key) error {
@@ -104,22 +150,35 @@ func (ps *PlayScene) Update(keys []ebiten.Key) error {
 	ball.PositionY += ball.VelocityY
 
 	if ball.PositionX > 285 {
-		ball.InvertVelocity(true, false)
+		score.Player1 += 1
+		ResetBall(&ball)
+		ball.AddVelocity(1, 1)
 	}
 
 	if ball.PositionX < -15 {
-		ball.InvertVelocity(true, false)
+		score.Player2 += 1
+		ResetBall(&ball)
+		ball.AddVelocity(1, 1)
 	}
 
 	if ball.PositionY > 205 {
 		ball.InvertVelocity(false, true)
+		ball.VelocityX += rand.NormFloat64() * -1
+		ball.VelocityY += rand.NormFloat64() * -1
 	}
 
 	if ball.PositionY < -15 {
 		ball.InvertVelocity(false, true)
+		ball.VelocityX += rand.NormFloat64()
+		ball.VelocityY += rand.NormFloat64()
 	}
 
 	for _, key := range keys {
+
+		if key == ebiten.KeyEscape {
+			engine.SetActiveScene("Menu")
+			ps.Init()
+		}
 
 		if key == ebiten.KeyS {
 			if paddle1.PositionY < 109 {
@@ -148,10 +207,16 @@ func (ps *PlayScene) Update(keys []ebiten.Key) error {
 		}
 	}
 
+	//count++
+
 	return nil
 }
 func (ps *PlayScene) Draw(screen *ebiten.Image) {
 
+	//text.Draw(screen, fmt.Sprint((count/60)%5), face, 120, 70, color.RGBA{255, 255, 255, 255})
+
+	text.Draw(screen, fmt.Sprint(score.Player1), faceScore, 120, 30, color.RGBA{255, 255, 255, 255})
+	text.Draw(screen, fmt.Sprint(score.Player2), faceScore, 180, 30, color.RGBA{255, 255, 255, 255})
 	//screen.Fill(color.RGBA{0, 0, 0, 0xff})
 	for _, gameObject := range ps.GamesObjects {
 		gameObject.Draw(screen)
